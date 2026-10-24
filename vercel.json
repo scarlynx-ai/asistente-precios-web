@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/ruc",
+      "destination": "https://api.apis.net.pe/v1/ruc"
+    },
+    {
+      "source": "/api/dni",
+      "destination": "https://api.apis.net.pe/v1/dni"
+    }
+  ]
+}

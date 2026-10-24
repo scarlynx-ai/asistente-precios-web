@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AJVS PROYECTOS E.I.R.L. | Asistente de Precios y Cotizador</title>
+  <link rel="stylesheet" href="css/style.css?v=3.2">
+  <link rel="icon" type="image/png" href="img/logo-ajvs.png">
+</head>
+<body>
+
+  <!-- MATERIAL 3 TOP APP BAR -->
+  <header class="m3-top-app-bar">
+    <div class="m3-app-bar-content">
+      <div class="m3-app-bar-top-row">
+        <a href="#" class="m3-brand">
+          <div class="m3-brand-logo-box">
+            <img src="img/logo-ajvs.png" class="m3-brand-logo-img logo-light" alt="AJVS Proyectos EIRL">
+            <img src="img/logo-ajvs-dark.png" class="m3-brand-logo-img logo-dark" alt="AJVS Proyectos EIRL">
+          </div>
+          <div class="m3-brand-text">
+            <h1 class="m3-brand-title">Asistente y Cotizador</h1>
+            <div class="m3-brand-subtitle">
+              <span class="m3-brand-cat-label">AJVS PROYECTOS E.I.R.L.</span>
+              <span class="m3-badge app-auth-required" id="navTotalBadge" style="display: none;">183 productos</span>
+              <span class="m3-badge app-auth-required" id="navRoleBadge" style="display: none;">Vendedor</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- CONTROLES RÁPIDOS (VOZ, COSTOS, TEMA, SALIR) -->
+        <div class="m3-app-bar-utils">
+          <!-- BOTÓN VOZ AUTOMÁTICA (SILENCIADA POR DEFECTO) -->
+          <button class="m3-icon-btn app-auth-required" id="btnVoiceToggle" title="Voz automática silenciada (toca para activar)" style="display: none;">
+            <span class="material-symbols-rounded fill" id="iconVoice" style="color: var(--md-sys-color-on-surface-variant);">volume_off</span>
+          </button>
+
+          <!-- BOTÓN MODO TIENDA (OCULTAR COSTOS) -->
+          <button class="m3-tonal-btn app-auth-required" id="btnModoTienda" title="Ocultar costos de compra" style="display: none;">
+            <span class="material-symbols-rounded" id="iconModoTienda">visibility</span>
+            <span id="textModoTienda">Ver Costos</span>
+          </button>
+
+          <!-- BOTÓN MODO NOCHE -->
+          <button class="m3-icon-btn" id="btnThemeToggle" title="Cambiar tema día/noche">
+            <span class="material-symbols-rounded" id="iconTheme">dark_mode</span>
+          </button>
+
+          <!-- BOTÓN CERRAR SESIÓN -->
+          <button class="m3-icon-btn app-auth-required" id="btnLogout" title="Cerrar sesión" style="display: none;">
+            <span class="material-symbols-rounded">logout</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- PESTAÑAS DE NAVEGACIÓN PRINCIPAL -->
+      <nav class="m3-app-bar-tabs app-auth-required" aria-label="Navegación principal" style="display: none;">
+        <!-- PESTAÑA CHAT CONSULTAS -->
+        <button class="m3-tonal-btn active app-auth-required" id="tabBtnConsultas" style="display: none;">
+          <span class="material-symbols-rounded">chat</span>
+          <span>Chat</span>
+        </button>
+
+        <!-- PESTAÑA COTIZADOR Y ÓRDENES DE COMPRA (AJVS PROYECTOS E.I.R.L.) -->
+        <button class="m3-tonal-btn app-auth-required" id="tabBtnCotizador" style="display: none; position: relative;" title="Módulo de Cotizaciones y Órdenes de Compra AJVS">
+          <span class="material-symbols-rounded">request_quote</span>
+          <span>Cotizador / OC</span>
+          <span id="quoterBadgeCount" class="quoter-nav-badge" style="display: none;">0</span>
+        </button>
+
+        <!-- PESTAÑA ADMIN (SOLO VISIBLE PARA ADMINISTRADOR) -->
+        <button class="m3-tonal-btn" id="tabBtnAdmin" style="display: none;">
+          <span class="material-symbols-rounded" id="iconTabAdmin">inventory_2</span>
+          <span id="textTabAdmin">Admin</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PANTALLA 0: LOGIN DE SEGURIDAD (VENDEDOR Y ADMINISTRADOR) -->
+  <main id="viewLogin" class="m3-login-view" style="display: none;">
+    <div class="m3-login-card">
+      <div class="m3-login-header">
+        <div class="m3-login-brand-banner">
+          <img src="img/logo-ajvs.png" class="m3-login-logo-img logo-light" alt="AJVS Proyectos EIRL">
+          <img src="img/logo-ajvs-dark.png" class="m3-login-logo-img logo-dark" alt="AJVS Proyectos EIRL">
+        </div>
+        <div class="m3-login-avatar" id="loginHeaderAvatar" style="display: none;">
+          <span class="material-symbols-rounded fill" id="loginHeaderIcon">storefront</span>
+        </div>
+        <h2 class="m3-login-title" id="loginHeaderTitle">Acceso al Sistema</h2>
+        <p class="m3-login-subtitle" id="loginHeaderSubtitle">Selecciona tu tipo de cuenta para ingresar</p>
+      </div>
+
+      <!-- SELECTOR DE LOGIN: VENDEDOR VS ADMINISTRADOR -->
+      <div class="m3-login-tabs">
+        <button type="button" class="m3-login-tab-btn active" id="tabLoginUser">
+          <span class="material-symbols-rounded">storefront</span>
+          <span>Ventas / Consultas</span>
+        </button>
+        <button type="button" class="m3-login-tab-btn" id="tabLoginAdmin">
+          <span class="material-symbols-rounded">admin_panel_settings</span>
+          <span>Administrador</span>
+        </button>
+      </div>
+
+      <!-- FORMULARIO 1: VENDEDOR -->
+      <form id="formLoginUser" class="m3-login-form" autocomplete="off">
+        <div id="loginUserErrorMsg" class="m3-login-error" style="display: none;">
+          <span class="material-symbols-rounded">error</span>
+          <span id="loginUserErrorText">DNI o contraseña incorrectos.</span>
+        </div>
+
+        <div class="m3-input-field">
+          <label class="m3-input-label" for="loginDni">DNI del Vendedor</label>
+          <div class="m3-input-box">
+            <span class="material-symbols-rounded m3-input-icon">badge</span>
+            <input 
+              type="tel" 
+              id="loginDni" 
+              class="m3-text-input" 
+              placeholder="Ingresa tu número de DNI (8 dígitos)" 
+              maxlength="8" 
+              pattern="[0-9]*" 
+              inputmode="numeric" 
+              required
+            >
+          </div>
+        </div>
+
+        <div class="m3-input-field">
+          <label class="m3-input-label" for="loginPassword">Contraseña</label>
+          <div class="m3-input-box">
+            <span class="material-symbols-rounded m3-input-icon">key</span>
+            <input 
+              type="password" 
+              id="loginPassword" 
+              class="m3-text-input" 
+              placeholder="Ingresa tu contraseña" 
+              required
+            >
+            <button type="button" class="m3-pwd-toggle" id="btnTogglePassword" title="Mostrar/Ocultar contraseña">
+              <span class="material-symbols-rounded" id="iconPasswordToggle">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="m3-login-btn" id="btnLoginUserSubmit">
+          <span class="material-symbols-rounded fill">login</span>
+          <span>Ingresar a Consultas</span>
+        </button>
+
+        <div class="m3-login-footer">
+          <span class="material-symbols-rounded" style="font-size: 18px; color: var(--md-sys-color-primary);">verified_user</span>
+          <span>Acceso para vendedores y asesores de tienda</span>
+        </div>
+      </form>
+
+      <!-- FORMULARIO 2: ADMINISTRADOR -->
+      <form id="formLoginAdmin" class="m3-login-form" autocomplete="off" style="display: none;">
+        <div id="loginAdminErrorMsg" class="m3-login-error" style="display: none;">
+          <span class="material-symbols-rounded">error</span>
+          <span id="loginAdminErrorText">Usuario o contraseña de administrador incorrectos.</span>
+        </div>
+
+        <div class="m3-input-field">
+          <label class="m3-input-label" for="loginAdminUser">DNI de Administrador</label>
+          <div class="m3-input-box">
+            <span class="material-symbols-rounded m3-input-icon">admin_panel_settings</span>
+            <input 
+              type="tel" 
+              id="loginAdminUser" 
+              class="m3-text-input" 
+              placeholder="Ingresa tu DNI de Administrador" 
+              maxlength="8"
+              pattern="[0-9]*"
+              inputmode="numeric"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="m3-input-field">
+          <label class="m3-input-label" for="loginAdminPassword">Contraseña de Administrador</label>
+          <div class="m3-input-box">
+            <span class="material-symbols-rounded m3-input-icon">key</span>
+            <input 
+              type="password" 
+              id="loginAdminPassword" 
+              class="m3-text-input" 
+              placeholder="Ingresa la contraseña admin" 
+              required
+            >
+            <button type="button" class="m3-pwd-toggle" id="btnToggleAdminPassword" title="Mostrar/Ocultar contraseña">
+              <span class="material-symbols-rounded" id="iconAdminPasswordToggle">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="m3-login-btn m3-login-btn-admin" id="btnLoginAdminSubmit">
+          <span class="material-symbols-rounded fill">shield_person</span>
+          <span>Ingresar como Administrador</span>
+        </button>
+
+        <div class="m3-login-footer">
+          <span class="material-symbols-rounded" style="font-size: 18px; color: var(--md-sys-color-tertiary);">security</span>
+          <span>Acceso total: Edición, Excel, Precios y Costos</span>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- PANTALLA PRINCIPAL: ASISTENTE CHATBOT -->
+  <main id="viewConsultas" style="display: none;">
+    
+    <!-- HISTORIAL DEL CHAT (SCROLL) -->
+    <div class="chat-feed-container" id="chatFeed">
+      <!-- Los mensajes se inyectan dinámicamente aquí -->
+    </div>
+
+    <!-- BARRA FLOTANTE DE ENTRADA (M3 CHAT DOCK) -->
+    <div class="chat-input-dock">
+      
+      <!-- CHIPS DE SUGERENCIA RÁPIDA -->
+      <div class="chat-suggestions-bar" id="chatQuickChips">
+        <!-- Renderizado dinámico de sugerencias -->
+      </div>
+
+      <!-- COMPOSER BAR (INPUT + MIC + ENVIAR) -->
+      <div class="chat-composer-box">
+        <button class="m3-composer-mic" id="btnMic" title="Dictar por voz">
+          <span class="material-symbols-rounded">mic</span>
+        </button>
+
+        <input 
+          type="text" 
+          id="chatInput" 
+          class="chat-composer-input" 
+          placeholder="Escribe o consulta un producto (ej. válvula 4, arandela 5/8)..." 
+          autocomplete="off"
+        >
+
+        <button class="m3-icon-btn" id="btnClearInput" title="Borrar" style="display: none;">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+
+        <button class="m3-send-fab" id="btnSendMessage" title="Enviar consulta">
+          <span class="material-symbols-rounded fill">send</span>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- VISTA 1.5: MÓDULO DE COTIZACIONES Y ÓRDENES DE COMPRA (AJVS PROYECTOS E.I.R.L.) -->
+  <main id="viewCotizador" style="display: none;">
+    
+    <div class="quoter-workspace-layout">
+      <!-- COLUMNA IZQUIERDA (MODO HORIZONTAL): FORMULARIO, ÍTEMS E HISTORIAL -->
+      <div class="quoter-left-pane quoter-no-print">
+
+        <!-- BARRA SUPERIOR DE ACCIONES Y SELECTOR DE TIPO DE DOCUMENTO -->
+        <div class="m3-admin-card" style="margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0;">Cotizador y Órdenes de Compra</h2>
+                <span class="m3-code-chip" style="background: #fef3c7; color: #b45309; font-weight: 800;">AJVS PROYECTOS E.I.R.L.</span>
+              </div>
+              <p style="color: var(--md-sys-color-on-surface-variant); font-size: 0.85rem; margin-top: 4px;">
+                Completa los datos a la izquierda y visualiza el documento oficial A4 en tiempo real a la derecha.
+              </p>
+            </div>
+
+            <!-- SELECTOR: COTIZACIÓN vs ORDEN DE COMPRA + BOTONES PRINCIPALES -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <button type="button" class="m3-tonal-btn active" id="btnModeCotizacion" onclick="QuoterPanel.switchDocType('COT')">
+                <span class="material-symbols-rounded">description</span>
+                <span>Modo Cotización</span>
+              </button>
+              <button type="button" class="m3-tonal-btn" id="btnModeOrdenCompra" onclick="QuoterPanel.switchDocType('OC')">
+                <span class="material-symbols-rounded">shopping_cart_checkout</span>
+                <span>Modo Orden de Compra</span>
+              </button>
+              <button type="button" class="m3-tonal-btn" onclick="QuoterPanel.initNewDocument(QuoterPanel.currentDoc ? QuoterPanel.currentDoc.tipo : 'COT', true)" title="Limpiar y crear nuevo correlativo">
+                <span class="material-symbols-rounded">note_add</span>
+                <span>Nuevo Doc.</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- DIRECTORIO Y ACCIONES RÁPIDAS DE CLIENTES / PROVEEDORES -->
+          <div class="quoter-client-manager-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: var(--md-sys-color-primary);">domain</span>
+                <span style="font-size: 0.82rem; font-weight: 700; color: var(--md-sys-color-on-surface);">
+                  Directorio de Clientes / Proveedores:
+                </span>
+                <span id="clientAutoStatusBadge" class="quoter-client-status-badge" style="display: none;"></span>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="m3-tonal-btn" style="padding: 5px 12px; font-size: 0.78rem;" onclick="QuoterPanel.saveCurrentClientManual()" title="Guardar o actualizar los datos de este cliente para autocompletado automático">
+                  <span class="material-symbols-rounded" style="font-size: 16px;">person_add</span>
+                  <span>Guardar / Actualizar Cliente</span>
+                </button>
+                <button type="button" class="m3-tonal-btn" style="padding: 5px 10px; font-size: 0.78rem;" onclick="QuoterPanel.clearClientFields()" title="Limpiar campos del cliente actual">
+                  <span class="material-symbols-rounded" style="font-size: 16px;">ink_eraser</span>
+                  <span>Limpiar Cliente</span>
+                </button>
+              </div>
+            </div>
+            <div id="quoterSavedClientsBar" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"></div>
+          </div>
+
+          <!-- FORMULARIO DE CABECERA (DATOS DEL CLIENTE / PROVEEDOR Y DOCUMENTO) -->
+          <div class="quoter-header-form-grid">
+            <div class="form-group">
+              <label for="qSerie">Serie</label>
+              <input type="text" id="qSerie" class="form-input" placeholder="COT 001" style="font-weight: 700;">
+            </div>
+            <div class="form-group">
+              <label for="qCorrelativo">N° Correlativo</label>
+              <input type="text" id="qCorrelativo" class="form-input" placeholder="26000197" style="font-weight: 800; color: var(--md-sys-color-primary);">
+            </div>
+            <div class="form-group quoter-client-field-wrap" style="grid-column: span 2; position: relative;">
+              <label for="qClienteRazon" id="lblClienteOrProveedor">Cliente / Razón Social (Autocompleta al escribir)</label>
+              <input type="text" id="qClienteRazon" class="form-input" placeholder="Escribe Razón Social o elige un cliente guardado..." autocomplete="off">
+              <div id="qClienteRazonDropdown" class="quoter-autocomplete-dropdown" style="display: none;"></div>
+            </div>
+            <div class="form-group quoter-client-field-wrap" style="position: relative;">
+              <label for="qClienteRuc">RUC / DNI (Detecta automático)</label>
+              <div style="position: relative; display: flex; align-items: center;">
+                <input type="text" id="qClienteRuc" class="form-input" inputmode="numeric" placeholder="Ej. 20508824972" maxlength="11" style="padding-right: 40px;" autocomplete="off">
+                <button type="button" id="btnLookupSunat" class="quoter-ruc-lookup-btn" onclick="QuoterPanel.lookupRucOrDniOnline(document.getElementById('qClienteRuc').value, true)" title="Buscar RUC/DNI y autocompletar">
+                  <span class="material-symbols-rounded" style="font-size: 18px;">manage_search</span>
+                </button>
+              </div>
+              <div id="qClienteRucDropdown" class="quoter-autocomplete-dropdown" style="display: none;"></div>
+            </div>
+            <div class="form-group">
+              <label for="qClienteAtencion">Atención (Contacto)</label>
+              <input type="text" id="qClienteAtencion" class="form-input" placeholder="Ej. FERNANDO SILVA (se guarda en el cliente)" autocomplete="off">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label for="qClienteDireccion">Dirección Fiscal / Obra</label>
+              <input type="text" id="qClienteDireccion" class="form-input" placeholder="Ej. JR. TOMASAL NRO 433 - SANTIAGO DE SURCO" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label for="qFechaEmision">Fecha Emisión</label>
+              <input type="date" id="qFechaEmision" class="form-input">
+            </div>
+            <div class="form-group">
+              <label for="qFechaVenc">Fecha Vencimiento</label>
+              <input type="date" id="qFechaVenc" class="form-input">
+            </div>
+            <div class="form-group">
+              <label for="qCondicionPago">Condición de Pago</label>
+              <input type="text" id="qCondicionPago" class="form-input" list="listCondicionesPago" placeholder="AL CONTADO">
+              <datalist id="listCondicionesPago">
+                <option value="AL CONTADO"></option>
+                <option value="50% ADELANTO / 50% CONTRAENTREGA"></option>
+                <option value="CRÉDITO 15 DÍAS"></option>
+                <option value="CRÉDITO 30 DÍAS"></option>
+              </datalist>
+            </div>
+            <div class="form-group">
+              <label for="qMoneda">Moneda</label>
+              <select id="qMoneda" class="form-input">
+                <option value="SOLES">SOLES (S/)</option>
+                <option value="DOLARES">DÓLARES ($)</option>
+              </select>
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label for="qAsunto">Asunto del Documento</label>
+              <input type="text" id="qAsunto" class="form-input" placeholder="Ej. SUMINISTRO DE ACCESORIOS o SERVICIO DE PERFORACION E INSTALACION..." style="font-weight: 700;">
+            </div>
+          </div>
+        </div>
+
+        <!-- BUSCADOR RÁPIDO DEL CATÁLOGO Y TABLA EDITABLE DE ÍTEMS -->
+        <div class="m3-admin-card" style="margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Ítems, Accesorios y Servicios</h3>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="m3-tonal-btn" onclick="QuoterPanel.addSectionRow()" title="Agregar fila de título de grupo (ej. 1. SUMINISTRO DE ACCESORIOS)">
+                <span class="material-symbols-rounded">create_new_folder</span>
+                <span>+ Sección</span>
+              </button>
+              <button type="button" class="m3-tonal-btn" onclick="QuoterPanel.addCustomItem(false)" title="Agregar accesorio o producto personalizado">
+                <span class="material-symbols-rounded">add_box</span>
+                <span>+ Ítem Libre</span>
+              </button>
+              <button type="button" class="m3-tonal-btn" onclick="QuoterPanel.addCustomItem(true)" title="Agregar servicio con viñetas (como SER01)">
+                <span class="material-symbols-rounded">handyman</span>
+                <span>+ Servicio (SER01)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- BUSCADOR AUTOCOMPLETADO CONECTADO AL CATÁLOGO -->
+          <div class="quoter-search-wrapper" style="position: relative; margin-bottom: 14px;">
+            <span class="material-symbols-rounded" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--md-sys-color-primary);">search</span>
+            <input
+              type="text"
+              id="quoterCatalogSearch"
+              class="form-input"
+              style="padding-left: 44px; border: 2px solid var(--md-sys-color-primary); border-radius: var(--m3-shape-full); font-size: 0.92rem;"
+              placeholder="Buscar en el catálogo por código (ej. AH0002, ADB001) o nombre (ej. tapón hdpe, válvula)..."
+              autocomplete="off"
+            >
+            <div id="quoterCatalogResults" class="quoter-autocomplete-dropdown" style="display: none;"></div>
+          </div>
+
+          <!-- TABLA INTERACTIVA DE EDICIÓN DE ÍTEMS -->
+          <div class="quoter-items-table-wrap">
+            <table class="quoter-items-editor-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--md-sys-color-outline-variant); color: var(--md-sys-color-on-surface-variant);">
+                  <th style="padding: 8px 6px; width: 44px; text-align: center;">ITEM</th>
+                  <th style="padding: 8px 6px; width: 72px;">UND</th>
+                  <th style="padding: 8px 6px; width: 88px;">CÓDIGO</th>
+                  <th style="padding: 8px 6px;">DESCRIPCIÓN</th>
+                  <th style="padding: 8px 6px; width: 74px; text-align: center;">CANT.</th>
+                  <th style="padding: 8px 6px; width: 96px; text-align: right;">P/U (Sin IGV)</th>
+                  <th style="padding: 8px 6px; width: 96px; text-align: right;">P/U (Con IGV)</th>
+                  <th style="padding: 8px 6px; width: 100px; text-align: right;">IMPORTE</th>
+                  <th style="padding: 8px 6px; width: 104px; text-align: center;">ACCIÓN</th>
+                </tr>
+              </thead>
+              <tbody id="quoterItemsEditorBody"></tbody>
+            </table>
+          </div>
+
+          <!-- OBSERVACIONES Y VENDEDORA -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--md-sys-color-outline-variant);">
+            <div class="form-group">
+              <label for="qObservaciones">Observaciones y Condiciones (Pie de documento)</label>
+              <textarea id="qObservaciones" class="form-input" rows="2" placeholder="TIEMPO DE FABRICACION: 3 DIAS HABILES&#10;• CONDICIONES DE PAGO: AL CONTADO."></textarea>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="form-group">
+                <label for="qVendedoraNombre">Vendedora / Responsable</label>
+                <input type="text" id="qVendedoraNombre" class="form-input" placeholder="TULA JAYO VEGA">
+              </div>
+              <div class="form-group">
+                <label for="qVendedoraCargo">Cargo</label>
+                <input type="text" id="qVendedoraCargo" class="form-input" placeholder="JEFA DE VENTAS Y LOGISTICA">
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTONERA DE EXPORTACIÓN Y GUARDADO -->
+          <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 14px;">
+            <button type="button" class="m3-tonal-btn" onclick="QuoterPanel.saveCurrentDocument()">
+              <span class="material-symbols-rounded">save</span>
+              <span>Guardar en Historial</span>
+            </button>
+            <button type="button" class="m3-tonal-btn" onclick="QuoterPanel.exportCurrentDocToExcel()">
+              <span class="material-symbols-rounded">table_view</span>
+              <span>Exportar Excel (.xlsx)</span>
+            </button>
+            <button type="button" class="m3-tonal-btn" onclick="QuoterPanel.printOrDownloadPdf()">
+              <span class="material-symbols-rounded">print</span>
+              <span>Imprimir A4</span>
+            </button>
+            <button type="button" class="m3-tonal-btn active" style="padding: 9px 18px; font-weight: 800;" onclick="QuoterPanel.downloadPdfA4()">
+              <span class="material-symbols-rounded">download</span>
+              <span>Descargar PDF A4</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- HISTORIAL DE COTIZACIONES Y ÓRDENES DE COMPRA -->
+        <div class="m3-admin-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Historial de Cotizaciones y Órdenes de Compra</h3>
+              <p style="font-size: 0.82rem; color: var(--md-sys-color-on-surface-variant); margin-top: 2px;">
+                Incluye las cotizaciones reales <strong>COT 001 - 26000194</strong> y <strong>COT 001 - 26000196</strong> listas para abrir, duplicar o descargar en PDF A4.
+              </p>
+            </div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="quoter-history-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--md-sys-color-outline-variant); color: var(--md-sys-color-on-surface-variant);">
+                  <th style="padding: 10px;">N° Documento</th>
+                  <th style="padding: 10px;">Cliente / Proveedor</th>
+                  <th style="padding: 10px;">Asunto</th>
+                  <th style="padding: 10px;">Emisión</th>
+                  <th style="padding: 10px;">Total (Incl. IGV)</th>
+                  <th style="padding: 10px; text-align: center;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="quoterHistoryTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLUMNA DERECHA (MODO HORIZONTAL): VISTA PREVIA EN VIVO DEL DOCUMENTO OFICIAL A4 -->
+      <div class="quoter-right-pane">
+        <div class="quoter-preview-section">
+          <div class="quoter-no-print quoter-preview-toolbar">
+            <h3 style="font-size: 1rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 6px;">
+              <span class="material-symbols-rounded" style="color: var(--md-sys-color-primary);">visibility</span>
+              <span>Vista Previa A4 en Vivo</span>
+            </h3>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="m3-tonal-btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="QuoterPanel.printOrDownloadPdf()" title="Imprimir hoja A4">
+                <span class="material-symbols-rounded" style="font-size: 17px;">print</span>
+                <span>Imprimir</span>
+              </button>
+              <button type="button" class="m3-tonal-btn active" style="padding: 6px 14px; font-size: 0.82rem; font-weight: 700;" onclick="QuoterPanel.downloadPdfA4()">
+                <span class="material-symbols-rounded" style="font-size: 18px;">picture_as_pdf</span>
+                <span>Descargar PDF A4</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="ajvsPreviewContainer" class="ajvs-preview-scroll-wrap"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- VISTA 2: PANEL DE ADMINISTRACIÓN -->
+  <main id="viewAdmin" style="display: none;">
+    <div class="m3-admin-card" style="margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-size: 1.5rem; font-weight: 700;">Gestión de Inventario</h2>
+          <p style="color: var(--md-sys-color-on-surface-variant); font-size: 0.9rem;">
+            Actualiza productos masivamente con Excel o gestiona el catálogo individualmente.
+          </p>
+        </div>
+        <button class="m3-tonal-btn active" id="btnNewProduct" style="padding: 10px 18px;">
+          <span class="material-symbols-rounded">add</span>
+          <span>Registrar Producto</span>
+        </button>
+      </div>
+
+      <!-- ZONA EXCEL -->
+      <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <input type="file" id="excelFileInput" accept=".xlsx, .xlsm, .xls" style="display: none;">
+        <button class="m3-tonal-btn" id="btnUploadExcel">
+          <span class="material-symbols-rounded">upload_file</span>
+          <span>Cargar Excel (.xlsx / .xlsm)</span>
+        </button>
+        <button class="m3-tonal-btn" id="btnExportExcel">
+          <span class="material-symbols-rounded">download</span>
+          <span>Descargar Excel</span>
+        </button>
+        <button class="m3-tonal-btn" id="btnGoogleSheets">
+          <span class="material-symbols-rounded">cloud_sync</span>
+          <span>Conectar Google Sheets ($0)</span>
+        </button>
+      </div>
+
+      <!-- DRAG AND DROP -->
+      <div class="excel-dropzone" id="excelDropzone" style="border: 2px dashed var(--md-sys-color-primary); border-radius: var(--m3-shape-lg); padding: 24px; text-align: center; cursor: pointer; background: var(--md-sys-color-surface-container);">
+        <span class="material-symbols-rounded" style="font-size: 40px; color: var(--md-sys-color-primary); margin-bottom: 8px;">folder_open</span>
+        <h4 style="font-weight: 700; margin-bottom: 4px;">Arrastra aquí tu Excel para sincronización masiva</h4>
+        <p style="font-size: 0.85rem; color: var(--md-sys-color-on-surface-variant);">
+          Reconoce códigos existentes para actualizar precios y crea los nuevos automáticamente.
+        </p>
+      </div>
+    </div>
+
+    <!-- TABLA DE PRODUCTOS -->
+    <div class="m3-admin-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <h3 style="font-size: 1.2rem; font-weight: 700;">Listado General</h3>
+        <div style="position: relative; max-width: 320px; width: 100%;">
+          <span class="material-symbols-rounded" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--md-sys-color-on-surface-variant); font-size: 20px;">search</span>
+          <input type="text" id="tableSearch" class="form-input" style="padding-left: 40px; border-radius: var(--m3-shape-full);" placeholder="Filtrar por código o nombre...">
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--md-sys-color-outline-variant); color: var(--md-sys-color-on-surface-variant);">
+              <th style="padding: 12px 10px;">Código</th>
+              <th style="padding: 12px 10px;">Descripción</th>
+              <th style="padding: 12px 10px;">P. Compra</th>
+              <th style="padding: 12px 10px;">P. Venta</th>
+              <th style="padding: 12px 10px;">IGV (18%)</th>
+              <th style="padding: 12px 10px;">Total</th>
+              <th style="padding: 12px 10px; text-align: center;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <!-- Renderizado dinámico -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: REGISTRAR / EDITAR PRODUCTO -->
+  <div class="modal-backdrop" id="modalProduct">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+        <h3 id="modalProductTitle" style="font-size: 1.3rem; font-weight: 700;">Registrar Producto</h3>
+        <button class="m3-icon-btn" id="btnCloseModal">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <form id="formProduct">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="inpCodigo">Código de Producto</label>
+          <input type="text" id="inpCodigo" class="form-input" placeholder="Ej. ADB001">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="inpDescripcion">Descripción Completa *</label>
+          <input type="text" id="inpDescripcion" class="form-input" placeholder="Ej. ADAPTADOR BRIDA DE 50MM PPR" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+          <div class="form-group">
+            <label for="inpPrecioCompra">Precio Compra (S/)</label>
+            <input type="number" step="0.01" id="inpPrecioCompra" class="form-input" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label for="inpPrecioVenta">Precio Venta (S/) *</label>
+            <input type="number" step="0.01" id="inpPrecioVenta" class="form-input" placeholder="0.00" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+          <div class="form-group">
+            <label for="inpIGV">IGV 18% (Auto)</label>
+            <input type="number" step="0.01" id="inpIGV" class="form-input" placeholder="0.00" readonly style="opacity: 0.8;">
+          </div>
+          <div class="form-group">
+            <label for="inpTotal">Total con IGV (S/)</label>
+            <input type="number" step="0.01" id="inpTotal" class="form-input" placeholder="0.00" readonly style="background: var(--md-sys-color-success-container); color: var(--md-sys-color-on-success-container); font-weight: 700;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label for="inpStock">Estado de Stock</label>
+          <input type="text" id="inpStock" class="form-input" placeholder="Ej. Disponible, 10 unid">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="m3-tonal-btn" id="btnCancelModal">Cancelar</button>
+          <button type="submit" class="m3-tonal-btn active" style="padding: 10px 20px;">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: GUÍA GOOGLE SHEETS ($0 COSTO) -->
+  <div class="modal-backdrop" id="modalGoogleSheets">
+    <div class="modal-content" style="max-width: 620px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 1.3rem; font-weight: 700;">Conectar Google Sheets ($0 Costo)</h3>
+        <button class="m3-icon-btn" onclick="AdminPanel.closeGoogleModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <p style="font-size: 0.95rem; line-height: 1.6; color: var(--md-sys-color-on-surface-variant); margin-bottom: 14px;">
+        Convierte tu archivo de Google Drive en una base de datos en vivo sin pagar hosting:
+      </p>
+      <ol style="margin-left: 20px; font-size: 0.9rem; line-height: 1.8; color: var(--md-sys-color-on-surface);">
+        <li>Sube tu Excel a Google Drive y ábrelo como Google Sheet.</li>
+        <li>Ve a <strong>Extensiones &gt; Apps Script</strong>.</li>
+        <li>Pega el código incluido en el archivo <code>google_apps_script.js</code> del proyecto.</li>
+        <li>Haz clic en <strong>Implementar &gt; Nueva implementación &gt; Aplicación Web</strong> (Acceso: Cualquier usuario).</li>
+        <li>¡Listo! Cualquier cambio en tu Google Sheet se reflejará al instante aquí.</li>
+      </ol>
+      <div style="margin-top: 20px; text-align: right;">
+        <button type="button" class="m3-tonal-btn active" onclick="AdminPanel.closeGoogleModal()">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DESBLOQUEO RÁPIDO DE ADMINISTRADOR -->
+  <div class="modal-backdrop" id="modalAdminUnlock">
+    <div class="modal-content" style="max-width: 440px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="material-symbols-rounded" style="font-size: 28px; color: var(--md-sys-color-primary);">shield_person</span>
+          <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0;">Acceso de Administrador</h3>
+        </div>
+        <button class="m3-icon-btn" type="button" id="btnCloseAdminUnlock">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+
+      <p style="font-size: 0.9rem; line-height: 1.5; color: var(--md-sys-color-on-surface-variant); margin-bottom: 16px;">
+        Ingresa la contraseña de administrador para desbloquear el panel de inventario y edición de precios.
+      </p>
+
+      <form id="formAdminUnlock" autocomplete="off">
+        <div id="adminUnlockErrorMsg" class="m3-login-error" style="display: none; margin-bottom: 14px;">
+          <span class="material-symbols-rounded">error</span>
+          <span>Contraseña de administrador incorrecta.</span>
+        </div>
+
+        <div class="m3-input-field">
+          <label class="m3-input-label" for="adminUnlockPassword">Contraseña de Administrador</label>
+          <div class="m3-input-box">
+            <span class="material-symbols-rounded m3-input-icon">key</span>
+            <input 
+              type="password" 
+              id="adminUnlockPassword" 
+              class="m3-text-input" 
+              placeholder="Ingresa tu contraseña admin" 
+              required
+            >
+            <button type="button" class="m3-pwd-toggle" id="btnToggleUnlockPassword" title="Mostrar/Ocultar contraseña">
+              <span class="material-symbols-rounded" id="iconUnlockPasswordToggle">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" class="m3-tonal-btn" id="btnCancelAdminUnlock">Cancelar</button>
+          <button type="submit" class="m3-login-btn m3-login-btn-admin" style="padding: 10px 20px; margin-top: 0; font-size: 0.95rem;">
+            <span class="material-symbols-rounded fill">lock_open</span>
+            <span>Desbloquear Admin</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/data.js"></script>
+  <script src="js/xlsx.full.min.js"></script>
+  <script src="js/html2pdf.bundle.min.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/auth.js?v=3.6"></script>
+  <script src="js/admin.js?v=1.2"></script>
+  <script src="js/quoter.js?v=1.5"></script>
+  <script src="js/assistant.js?v=3.3"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      AuthManager.init();
+      AdminPanel.init();
+      QuoterPanel.init();
+      Assistant.init();
+    });
+  </script>
+</body>
+</html>
