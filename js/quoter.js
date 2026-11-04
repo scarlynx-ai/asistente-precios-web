@@ -15,6 +15,18 @@ const QuoterPanel = {
     OC: 26000001
   },
 
+  // Unidades disponibles en el cotizador (incluye Rollo: rll y Metros: mt, mts)
+  UNIT_OPTIONS: ['und', 'glb', 'srv', 'pza', 'jgo', 'm', 'mt', 'mts', 'rll', 'kit'],
+
+  getUnitOptions(currentUnit) {
+    const list = [...this.UNIT_OPTIONS];
+    const cur = String(currentUnit || 'und').trim();
+    if (cur && !list.some(u => u.toLowerCase() === cur.toLowerCase())) {
+      list.push(cur);
+    }
+    return list;
+  },
+
   // Datos oficiales de AJVS PROYECTOS E.I.R.L.
   COMPANY_INFO: {
     nombre: 'AJVS PROYECTOS E.I.R.L.',
@@ -885,7 +897,7 @@ const QuoterPanel = {
 
           this.currentDoc.clienteRuc = num;
           this.currentDoc.clienteRazonSocial = nombre.toUpperCase();
-          if (direccionCompleta && (!this.currentDoc.clienteDireccion || this.currentDoc.clienteDireccion === '—')) {
+          if (direccionCompleta) {
             this.currentDoc.clienteDireccion = direccionCompleta;
           }
 
@@ -1489,7 +1501,10 @@ const QuoterPanel = {
           </td>
           <td class="q-cell-und" data-label="UND">
             <select class="form-input quoter-inline-input" style="padding: 6px 8px; min-width: 68px;" onchange="QuoterPanel.onEditRowField('${item.rowId}', 'und', this.value)">
-              ${['und', 'glb', 'srv', 'pza', 'jgo', 'm', 'kit'].map(u => `<option value="${u}" ${item.und === u ? 'selected' : ''}>${u}</option>`).join('')}
+              ${this.getUnitOptions(item.und).map(u => {
+                const isSelected = String(item.und || 'und').trim().toLowerCase() === u.toLowerCase();
+                return `<option value="${u}" ${isSelected ? 'selected' : ''}>${u}</option>`;
+              }).join('')}
             </select>
           </td>
           <td class="q-cell-code" data-label="CÓDIGO">

@@ -1991,6 +1991,7 @@ body.dark-mode .quoter-items-editor-table td.q-cell-actions {
 .ajvs-info-value {
   color: #111827;
   font-weight: 600;
+  word-break: break-word;
 }
 
 .ajvs-asunto-bar {
