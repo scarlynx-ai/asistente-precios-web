@@ -605,3 +605,7 @@ const Toast = {
     }, duration);
   }
 };
+
+window.AdminPanel = AdminPanel;
+window.CatalogManager = CatalogManager;
+window.Toast = Toast;

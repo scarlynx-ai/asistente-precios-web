@@ -3,3 +3,5 @@ server.ps1
 Iniciar_Demo.bat
 *.log
 preview_server.py
+control-maestro.html
+license_status.json

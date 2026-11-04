@@ -447,3 +447,5 @@ const AuthManager = {
     setupPwdToggle('btnToggleUnlockPassword', 'adminUnlockPassword', 'iconUnlockPasswordToggle');
   }
 };
+
+window.AuthManager = AuthManager;

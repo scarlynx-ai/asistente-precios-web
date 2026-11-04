@@ -1,0 +1,28 @@
+{
+  "status": "active",
+  "reason": "Falta de pago cuota 2 acordada",
+  "debtAmount": "S/. 1,800.00",
+  "dueDate": "",
+  "expiredMode": "restricted",
+  "restrictedFeatures": {
+    "quoter": true,
+    "admin": true,
+    "search": false,
+    "voice": true
+  },
+  "unlockCodes": [
+    "AJVS-ACT-2025",
+    "PAGO-OK-2026"
+  ],
+  "paymentInfo": {
+    "bcp": "BCP Soles: 191-94829102-0-45 (CCI: 0021910094829102045)",
+    "bbva": "BBVA Soles: 0011-0175-0200849302",
+    "interbank": "Interbank Soles: 200-3001849201",
+    "yapePlin": "Yape / Plin: 970 411 928",
+    "holder": "Desarrollador / Empresa de Software"
+  },
+  "contactWhatsApp": "51970411928",
+  "contactPhone": "+51 970 411 928",
+  "updatedAt": "2026-11-04T08:10:00Z",
+  "test": true
+}

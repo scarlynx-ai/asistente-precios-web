@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Conector de Google Sheets para Asistente de Precios ($0 Costo en la Nube)
  * 
  * INSTRUCCIONES:
@@ -13,6 +13,26 @@
  */
 
 function doGet(e) {
+  // Verificación remota opcional de Licencia / Control Maestro de Pagos
+  if (e && e.parameter && e.parameter.action === 'license') {
+    var licSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Licencia');
+    if (licSheet) {
+      var licStatus = String(licSheet.getRange('B1').getValue() || 'active').trim().toLowerCase();
+      var licReason = String(licSheet.getRange('B2').getValue() || '').trim();
+      var licAmount = String(licSheet.getRange('B3').getValue() || '').trim();
+      var licCode = String(licSheet.getRange('B4').getValue() || '').trim();
+      return ContentService.createTextOutput(JSON.stringify({
+        status: licStatus,
+        reason: licReason,
+        debtAmount: licAmount,
+        unlockCode: licCode
+      })).setMimeType(ContentService.MimeType.JSON);
+    } else {
+      return ContentService.createTextOutput(JSON.stringify({ status: 'active' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   
