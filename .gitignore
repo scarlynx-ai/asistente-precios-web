@@ -1,5 +1,4 @@
 cloudflared.exe
-*.log
 .vercel
 server.ps1
 Iniciar_Demo.bat
